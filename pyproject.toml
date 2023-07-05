@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools >= 42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sit-test-cases"
+version = "0.1"
+description = "Samba integration tests"
+readme = "README.md"
+authors = [
+    {name = "Sachin Prabhu", email = "sprabhu@redhat.com"},
+    {name = "Anoop C S", email = "anoopcs@samba.org"},
+    {name = "Shachar Sharon", email = "ssharon@ibm.com"},
+]
+
+[tool.setuptools_scm]
+
+[tool.black]
+line-length = 79
+quiet = true
+
+[tool.mypy]
+disallow_incomplete_defs = true
+
+
