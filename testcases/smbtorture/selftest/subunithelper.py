@@ -64,15 +64,15 @@ def parse_results(msg_ops, statistics, fh):
     exitcode = 0
     open_tests = {}
 
-    for l in fh:
-        parts = l.split(None, 1)
-        if not len(parts) == 2 or not l.startswith(parts[0]):
-            msg_ops.output_msg(l)
+    for ln in fh:
+        parts = ln.split(None, 1)
+        if not len(parts) == 2 or not ln.startswith(parts[0]):
+            msg_ops.output_msg(ln)
             continue
         command = parts[0].rstrip(":")
         arg = parts[1]
         if command in ("test", "testing"):
-            msg_ops.control_msg(l)
+            msg_ops.control_msg(ln)
             name = arg.rstrip()
             test = subunit.RemotedTestCase(name)
             if name in open_tests:
@@ -83,29 +83,31 @@ def parse_results(msg_ops, statistics, fh):
             msg_ops.startTest(test)
             open_tests[name] = test
         elif command == "time":
-            msg_ops.control_msg(l)
+            msg_ops.control_msg(ln)
             try:
                 dt = iso_parse_date(arg.rstrip("\n"))
-            except TypeError as e:
+            except TypeError:
                 print("Unable to parse time line: %s" % arg.rstrip("\n"))
             else:
                 msg_ops.time(dt)
         elif command in VALID_RESULTS:
-            msg_ops.control_msg(l)
+            msg_ops.control_msg(ln)
             result = command
-            grp = re.match("(.*?)( \[)?([ \t]*)( multipart)?\n", arg)
+            grp = re.match(
+                "(.*?)( \[)?([ \t]*)( multipart)?\n", arg  # noqa: W605
+            )
             (testname, hasreason) = (grp.group(1), grp.group(2))
             if hasreason:
                 reason = ""
                 # reason may be specified in next lines
                 terminated = False
-                for l in fh:
-                    msg_ops.control_msg(l)
-                    if l == "]\n":
+                for ln in fh:
+                    msg_ops.control_msg(ln)
+                    if ln == "]\n":
                         terminated = True
                         break
                     else:
-                        reason += l
+                        reason += ln
 
                 if isinstance(reason, bytes):
                     remote_error = subunit.RemoteError(reason.decode("utf-8"))
@@ -227,7 +229,7 @@ def parse_results(msg_ops, statistics, fh):
             else:
                 msg_ops.progress(int(arg), subunit.PROGRESS_SET)
         else:
-            msg_ops.output_msg(l)
+            msg_ops.output_msg(ln)
 
     while open_tests:
         test = subunit.RemotedTestCase(open_tests.popitem()[1])
@@ -294,15 +296,15 @@ def read_test_regexes(*names):
 
     for filename in files:
         with open(filename, "r") as f:
-            for l in f:
-                l = l.strip()
-                if l == "" or l[0] == "#":
+            for ln in f:
+                ln = ln.strip()
+                if ln == "" or ln[0] == "#":
                     continue
-                if "#" in l:
-                    (regex, reason) = l.split("#", 1)
+                if "#" in ln:
+                    (regex, reason) = ln.split("#", 1)
                     ret[regex.strip()] = reason.strip()
                 else:
-                    ret[l] = None
+                    ret[ln] = None
 
     return ret
 
@@ -802,7 +804,7 @@ class PlainFormatter(TestsuiteEnabledTestResult):
             )
         else:
             print(
-                "\nFAILED (%d failures, %d errors and %d unexpected successes in %d testsuites)"
+                "\nFAILED (%d failures, %d errors and %d unexpected successes in %d testsuites)"  # noqa: E501
                 % (
                     self.statistics["TESTS_UNEXPECTED_FAIL"],
                     self.statistics["TESTS_ERROR"],

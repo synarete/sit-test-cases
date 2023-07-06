@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
-# Test mounts a cifs share, creates a new file on it, writes to it, deletes the file and unmounts
+# Test mounts a cifs share, creates a new file on it, writes to it,
+# deletes the file and unmounts
 
 import testhelper
-import os, sys
+import os
+import sys
 
 test_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
@@ -33,7 +35,7 @@ def mount_test(test_info):
             flag_file_created = 0
             testhelper.cifs_umount(mount_point)
             flag_share_mounted = 0
-    except:
+    except Exception:
         print("Error while executing test")
         raise
     finally:
