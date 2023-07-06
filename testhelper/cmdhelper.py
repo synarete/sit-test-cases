@@ -1,5 +1,6 @@
 import os
 
+
 def cifs_mount(mount_params, mount_point, opts=None):
     """Use the cifs module to mount a share.
 
@@ -13,14 +14,26 @@ def cifs_mount(mount_params, mount_point, opts=None):
     """
 
     if not opts:
-        mount_options = "username=" + mount_params["username"] + ",password=" + mount_params["password"]
+        mount_options = (
+            "username="
+            + mount_params["username"]
+            + ",password="
+            + mount_params["password"]
+        )
     else:
-        mount_options = opts + ",username=" + mount_params["username"] + ",password=" + mount_params["password"]
+        mount_options = (
+            opts
+            + ",username="
+            + mount_params["username"]
+            + ",password="
+            + mount_params["password"]
+        )
     share = "//" + mount_params["host"] + "/" + mount_params["share"]
     cmd = "mount -t cifs -o " + mount_options + " " + share + " " + mount_point
     ret = os.system(cmd)
     assert ret == 0, "Error mounting: ret %d cmd: %s\n" % (ret, cmd)
     return ret
+
 
 def cifs_umount(mount_point):
     """Unmount a mounted filesystem.

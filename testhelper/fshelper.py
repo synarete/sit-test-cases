@@ -2,6 +2,7 @@ import os
 
 TMP_DIR = "/tmp/"
 
+
 def get_tmp_root():
     """Returns a temporary directory for use
 
@@ -12,12 +13,13 @@ def get_tmp_root():
     tmp_root: Location of the temporary directory.
     """
     tmp_root = TMP_DIR + "/" + str(os.getpid())
-    i=0
-    while (os.path.exists(tmp_root)):
+    i = 0
+    while os.path.exists(tmp_root):
         tmp_root = tmp_root + str(i)
         i = i + 1
     os.mkdir(tmp_root)
     return tmp_root
+
 
 def get_tmp_mount_point(tmp_root):
     """Return a mount point within the temporary directory
@@ -30,11 +32,12 @@ def get_tmp_mount_point(tmp_root):
     """
     i = 0
     mnt_point = tmp_root + "/mnt_" + str(i)
-    while (os.path.exists(mnt_point)):
+    while os.path.exists(mnt_point):
         i = i + 1
         mnt_point = tmp_root + "/" + str(i)
     os.mkdir(mnt_point)
     return mnt_point
+
 
 def get_tmp_file(tmp_root):
     """Return a temporary file within the temporary directory
@@ -47,12 +50,13 @@ def get_tmp_file(tmp_root):
     """
     i = 0
     tmp_file = tmp_root + "/tmp_file_" + str(i)
-    while (os.path.exists(tmp_file)):
+    while os.path.exists(tmp_file):
         i = i + 1
         tmp_file = tmp_root + "/tmp_file_" + str(i)
-    f = open(tmp_file, 'w')
+    f = open(tmp_file, "w")
     f.close()
     return tmp_file
+
 
 def get_tmp_dir(tmp_root):
     """Return a temporary directory within the temporary directory
@@ -65,7 +69,7 @@ def get_tmp_dir(tmp_root):
     """
     i = 0
     tmp_dir = tmp_root + "/tmp_dir_" + str(i)
-    while (os.path.exists(tmp_dir)):
+    while os.path.exists(tmp_dir):
         i = i + 1
         tmp_dir = tmp_root + "/tmp_dir_" + str(i)
         os.mkdir(tmp_dir)
