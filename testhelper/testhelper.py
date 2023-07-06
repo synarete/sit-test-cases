@@ -37,7 +37,8 @@ def gen_mount_params(host, share, username, password):
 
 
 def get_default_mount_params(test_info):
-    """Pass a dict of type mount_params containing the first parameters to mount the share.
+    """Pass a dict of type mount_params containing the first parameters to
+    mount the share.
 
     Parameters:
     test_info: Dict containing the parsed yaml file.
