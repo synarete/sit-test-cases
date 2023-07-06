@@ -1,5 +1,6 @@
 import yaml
 
+
 def read_yaml(file):
     """Returns a dict containing the contents of the yaml file.
 
@@ -12,6 +13,7 @@ def read_yaml(file):
     with open(file) as f:
         test_info = yaml.load(f, Loader=yaml.FullLoader)
     return test_info
+
 
 def gen_mount_params(host, share, username, password):
     """Generate a dict of parameters required to mount a SMB share.
@@ -26,12 +28,13 @@ def gen_mount_params(host, share, username, password):
     dict: mount parameters in a dict
     """
     ret = {
-        "host" : host,
-        "share" : share,
-        "username" : username,
-        "password" : password
+        "host": host,
+        "share": share,
+        "username": username,
+        "password": password,
     }
     return ret
+
 
 def get_default_mount_params(test_info):
     """Pass a dict of type mount_params containing the first parameters to mount the share.
@@ -46,8 +49,9 @@ def get_default_mount_params(test_info):
         test_info["public_interfaces"][0],
         test_info["exported_sharenames"][0],
         test_info["test_users"][0]["username"],
-        test_info["test_users"][0]["password"]
+        test_info["test_users"][0]["password"],
     )
+
 
 def get_total_mount_parameter_combinations(test_info):
     """Get total number of combinations of mount parameters for each share.
@@ -61,6 +65,7 @@ def get_total_mount_parameter_combinations(test_info):
     """
     return len(test_info["public_interfaces"]) * len(test_info["test_users"])
 
+
 def get_mount_parameters(test_info, share, combonum=0):
     """Get the mount_params dict for a given share and given combination number
 
@@ -69,7 +74,7 @@ def get_mount_parameters(test_info, share, combonum=0):
     share: The share for which to get the mount_params
     combonum: The combination number to use.
     """
-    if (combonum > get_total_mount_parameter_combinations(test_info)):
+    if combonum > get_total_mount_parameter_combinations(test_info):
         assert False, "Invalid combination number"
     num_public = int(combonum / len(test_info["test_users"]))
     num_users = combonum % len(test_info["test_users"])
@@ -77,11 +82,12 @@ def get_mount_parameters(test_info, share, combonum=0):
         test_info["public_interfaces"][num_public],
         share,
         test_info["test_users"][num_users]["username"],
-        test_info["test_users"][num_users]["password"]
+        test_info["test_users"][num_users]["password"],
     )
 
+
 def get_num_shares(test_info):
-    """ Get number of exported shares
+    """Get number of exported shares
 
     Parameters:
     test_info: Dict containing the parsed yml file.
@@ -91,8 +97,9 @@ def get_num_shares(test_info):
     """
     return len(test_info["exported_sharenames"])
 
+
 def get_share(test_info, share_num):
-    """ Get exported share name
+    """Get exported share name
 
     Parameters:
     test_info: Dict containing the parsed yml file.
