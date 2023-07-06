@@ -7,7 +7,8 @@
 # ip addresses).
 
 import testhelper
-import os, sys
+import os
+import sys
 import pytest
 
 test_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
@@ -26,7 +27,6 @@ def consistency_check(mount_point, ipaddr, share_name):
     mount_params["host"] = ipaddr
     try:
         flag_share_mounted = 0
-        flag_file_created = 0
 
         # The file write cycle
         testhelper.cifs_mount(mount_params, mount_point)
@@ -49,7 +49,7 @@ def consistency_check(mount_point, ipaddr, share_name):
     except AssertionError:
         pytest.fail("File content does not match")
 
-    except:
+    except IOError:
         pytest.fail("Error when open/write/read/close")
 
     finally:
@@ -59,7 +59,7 @@ def consistency_check(mount_point, ipaddr, share_name):
 
 def generate_consistency_check(test_info_file):
     global test_info
-    if test_info_file == None:
+    if test_info_file is None:
         return []
     test_info = testhelper.read_yaml(test_info_file)
     arr = []

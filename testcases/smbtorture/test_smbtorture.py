@@ -3,7 +3,8 @@
 # Run smbtorture tests
 
 import testhelper
-import sys, os
+import sys
+import os
 import yaml
 import pytest
 
@@ -24,7 +25,11 @@ output = testhelper.get_tmp_file("/tmp")
 def smbtorture(share_name, test, output):
     mount_params = testhelper.get_mount_parameters(test_info, share_name)
 
-    smbtorture_options_str = "--fullname --option=torture:progress=no --option=torture:sharedelay=100000 --option=torture:writetimeupdatedelay=500000"
+    smbtorture_options_str = (
+        "--fullname --option=torture:progress=no "
+        + "--option=torture:sharedelay=100000 "
+        + "--option=torture:writetimeupdatedelay=500000"
+    )
     smbtorture_cmd = (
         "%s %s --format=subunit --target=samba3 --user=%s%%%s //%s/%s %s 2>&1"
         % (
@@ -72,8 +77,6 @@ def smbtorture(share_name, test, output):
         filter_subunit_filters,
     )
 
-    format_subunit_cmd = "%s --immediate" % (format_subunit_exec)
-
     cmd = "%s|%s|/usr/bin/tee -a %s|%s >/dev/null" % (
         smbtorture_cmd,
         filter_subunit_cmd,
@@ -96,7 +99,7 @@ def list_smbtorture_tests(test_info):
 
 def generate_smbtorture_tests(test_info_file):
     global test_info
-    if test_info_file == None:
+    if test_info_file is None:
         return []
     test_info = testhelper.read_yaml(test_info_file)
     smbtorture_info = list_smbtorture_tests(test_info)
@@ -113,7 +116,7 @@ def generate_smbtorture_tests(test_info_file):
 )
 def test_smbtorture(share_name, test):
     ret = smbtorture(share_name, test, output)
-    if ret == False:
+    if not ret:
         with open(output) as f:
             print(f.read())
         pytest.fail("Failure in running test - %s" % (test), pytrace=False)
