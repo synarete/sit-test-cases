@@ -6,6 +6,7 @@
 import testhelper
 import os
 import sys
+from .test_mount_io import test_io_consistency
 
 test_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
@@ -33,6 +34,7 @@ def mount_test(test_info: dict) -> None:
                 f.write(test_string)
             os.unlink(test_file)
             flag_file_created = 0
+            test_io_consistency(mount_point)
             testhelper.cifs_umount(mount_point)
             flag_share_mounted = 0
     except Exception:
