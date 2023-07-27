@@ -1,0 +1,25 @@
+#Version: 0.0.1
+FROM quay.io/centos/centos:stream9 as builder
+WORKDIR /sit
+RUN dnf install -y dnf-plugin-config-manager epel-release epel-next-release
+RUN dnf config-manager --set-enabled crb
+RUN dnf install -y \
+  automake gcc git libaio-devel libattr-devel libcap-devel libcurl-devel \
+  libtool libunwind-devel libuuid-devel lz4 lz4-devel make openssl-devel \
+  perl-core perl-libwww-perl zlib zlib-devel
+RUN git clone https://github.com/linux-test-project/ltp
+WORKDIR /sit/ltp
+RUN make autotools
+RUN ./configure --disable-metadata --prefix="/sit/ltp/ltproot"
+RUN make
+RUN make install
+
+FROM quay.io/centos/centos:stream9
+ENV REFRESHED_AT 2023-11-13-01
+WORKDIR /
+RUN dnf install -y libaio lz4 libuuid
+COPY --from=builder /sit/ltp/ltproot /opt/ltp
+COPY run_ltp.sh ./
+RUN install -m 00775 ./run_ltp.sh /bin
+CMD ["/bin/run_ltp.sh"]
+
