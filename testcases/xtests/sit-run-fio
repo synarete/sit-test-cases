@@ -1,0 +1,32 @@
+#!/bin/bash
+
+SELF=$(basename "${BASH_SOURCE[0]}")
+TESTDIR="$1"
+
+_msg() { echo "$SELF: $*" >&2; }
+_die() { _msg "$*"; exit 1; }
+_try() { ( "$@" ) || _die "failed: $*"; }
+_run() { echo "$SELF: $*" >&2; _try "$@"; }
+
+_try stat ${TESTDIR} > /dev/null
+_try ls ${TESTDIR} > /dev/null
+_try command -v fio > /dev/null
+
+# Run-1: Simple
+_run fio --minimal --name=sit-fio-test1 --directory="${TESTDIR}" \
+	--numjobs=1 --bs=65536 --size=1073741824 --fallocate=none \
+	--readwrite=rw --rwmixwrite=50 --ioengine=psync \
+	--runtime=30 --time_based --verify=xxhash \
+	--sync=0 --direct=0 --thinktime=0 --norandommap \
+	--group_reporting --randrepeat=1 --unlink=1 --fsync_on_close=0
+
+sleep 1
+
+# Run-2: 8-jobs
+_run fio --minimal --name=sit-fio-test1 --directory="${TESTDIR}" \
+	--numjobs=8 --bs=65536 --size=268435456 --fallocate=none \
+	--readwrite=rw --rwmixwrite=30 --ioengine=psync \
+	--runtime=30 --time_based --verify=xxhash \
+	--sync=0 --direct=0 --thinktime=0 --norandommap \
+	--group_reporting --randrepeat=1 --unlink=1 --fsync_on_close=0
+

@@ -1,0 +1,17 @@
+FROM quay.io/centos/centos:stream9
+
+WORKDIR /sit
+RUN dnf install -y dnf-plugin-config-manager
+RUN dnf config-manager --set-enabled crb
+RUN dnf install -y epel-release epel-next-release
+COPY install-ltp.sh install-postgresql-deps.sh ./
+RUN ./install-ltp.sh
+RUN ./install-postgresql-deps.sh
+COPY sit-run-fio  sit-run-ltp  sit-run-postgresql ./
+RUN install -m 00775 ./sit-run-ltp /bin
+RUN install -m 00775 ./sit-run-fio /bin
+RUN install -m 00775 ./sit-run-postgresql /bin
+RUN mkdir -p /mnt/test
+RUN rm -rf /sit/*
+
+# vim:set syntax=dockerfile:

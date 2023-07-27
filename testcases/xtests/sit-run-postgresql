@@ -1,0 +1,25 @@
+#!/bin/bash
+
+SELF=$(basename "${BASH_SOURCE[0]}")
+TESTDIR="${1:-/mnt/test}"
+
+_msg() { echo "$SELF: $*" >&2; }
+_die() { _msg "$*"; exit 1; }
+_try() { ( "$@" ) || _die "failed: $*"; }
+_run() { echo "$SELF: $*" >&2; _try "$@"; }
+
+_try stat ${TESTDIR} > /dev/null
+_try ls ${TESTDIR} > /dev/null
+_try command -v git > /dev/null
+
+# Build PostgreSQL from source and run its test-suite
+cd "${TESTDIR}"
+_run git clone git://git.postgresql.org/git/postgresql.git
+cd postgresql
+_run ./configure
+_run make
+_run make check
+# Cleanups
+cd "${TESTDIR}"
+_run rm -rf ./postgresql
+
