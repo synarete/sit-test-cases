@@ -120,20 +120,19 @@ def get_share(test_info: dict, share_num: int) -> str:
 
 def generate_random_bytes(size: int) -> bytes:
     """
-    Creates bytes-sequence filled with random values.
+    Creates sequence of semi-random bytes.
 
-    In order to avoid exhausting random pool (which causes high CPU usage)
-    re-use the first page of current random buffer to re-construct larger
-    one, thus creating only "pseudo" random bytes instead of true random.
-
-    Needed because random.randbytes() is available only in Python>=3.9.
+    A wrapper over standard 'random.randbytes()' which should be used in
+    cases where caller wants to avoid exhausting of host's random pool (which
+    may also yield high CPU usage). Uses an existing random bytes-array to
+    re-construct a new one, double in size, plus up-to 1K of newly random
+    bytes. This method creats only "pseudo" (or "semi") random bytes instead
+    of true random bytes-sequence, which should be good enough for I/O
+    integrity testings.
     """
-    rbytes = bytearray(0)
-    while len(rbytes) < size:
-        rnd = random.randint(0, 0xFFFFFFFFFFFFFFFF)
-        rba = bytearray(rnd.to_bytes(8, "big"))
-        if len(rbytes) < 4096:
-            rbytes = rbytes + rba
-        else:
-            rbytes = rba + rbytes + rba + rbytes
-    return rbytes[:size]
+    rba = bytearray(random.randbytes(min(size, 1024)))
+    while len(rba) < size:
+        rem = size - len(rba)
+        rnd = bytearray(random.randbytes(min(rem, 1024)))
+        rba = rba + rnd + rba
+    return rba[:size]
