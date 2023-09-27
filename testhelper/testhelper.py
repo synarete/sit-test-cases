@@ -18,7 +18,11 @@ def read_yaml(file: str) -> dict:
 
 
 def gen_mount_params(
-    host: str, share: str, username: str, password: str
+    host: str,
+    share: str,
+    username: str,
+    password: str,
+    test_dir: str = "",
 ) -> typing.Dict[str, str]:
     """Generate a dict of parameters required to mount a SMB share.
 
@@ -27,6 +31,7 @@ def gen_mount_params(
     share: exported share name
     username: username
     password: password for the user
+    test_dir: (optional) local-host test-dir over a mounted share
 
     Returns:
     dict: mount parameters in a dict
@@ -36,6 +41,7 @@ def gen_mount_params(
         "share": share,
         "username": username,
         "password": password,
+        "test_dir": test_dir,
     }
     return ret
 
@@ -90,6 +96,7 @@ def get_mount_parameters(
         share,
         test_info["test_users"][num_users]["username"],
         test_info["test_users"][num_users]["password"],
+        test_info.get("test_dir", ""),
     )
 
 
