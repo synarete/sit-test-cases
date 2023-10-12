@@ -134,13 +134,12 @@ def generate_smbtorture_tests(
 @pytest.mark.parametrize(
     "share_name,test", generate_smbtorture_tests(os.getenv("TEST_INFO_FILE"))
 )
-def test_smbtorture(share_name: str, test: str) -> bool:
+def test_smbtorture(share_name: str, test: str) -> None:
     ret = smbtorture(share_name, test, output)
     if os.path.exists(output):
         os.unlink(output)
     if not ret:
         pytest.fail("Failure in running test - %s" % (test), pytrace=False)
-    return True
 
 
 if __name__ == "__main__":
