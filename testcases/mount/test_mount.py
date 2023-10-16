@@ -16,6 +16,11 @@ test_info = os.getenv("TEST_INFO_FILE")
 test_info_dict = testhelper.read_yaml(test_info)
 
 
+def _check_mounted_smbshare(test_dir: str) -> None:
+    check_io_consistency(test_dir)
+    check_dbm_consistency(test_dir)
+
+
 def mount_check(ipaddr: str, share_name: str) -> None:
     mount_params = testhelper.get_mount_parameters(test_info_dict, share_name)
     mount_params["host"] = ipaddr
@@ -27,8 +32,7 @@ def mount_check(ipaddr: str, share_name: str) -> None:
         flag_mounted = True
         test_dir = os.path.join(mount_point, "mount_test")
         os.mkdir(test_dir)
-        check_io_consistency(test_dir)
-        check_dbm_consistency(test_dir)
+        _check_mounted_smbshare(test_dir)
     finally:
         if flag_mounted:
             shutil.rmtree(test_dir, ignore_errors=True)
