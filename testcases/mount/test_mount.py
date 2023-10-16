@@ -16,16 +16,33 @@ test_info = os.getenv("TEST_INFO_FILE")
 test_info_dict = testhelper.read_yaml(test_info)
 
 
+def _get_test_dirs(
+    mount_params: typing.Dict[str, str]
+) -> typing.Tuple[str, str, str, bool]:
+    test_dir = mount_params.get("test_dir", "")
+    if not test_dir:
+        tmp_root = testhelper.get_tmp_root()
+        mount_point = testhelper.get_tmp_mount_point(tmp_root)
+        test_dir = os.path.join(mount_point, "mount_test")
+        do_mnt = True
+    else:
+        tmp_root = ""
+        mount_point = ""
+        do_mnt = False
+    return (tmp_root, mount_point, test_dir, do_mnt)
+
+
 def _check_mounted_smbshare(test_dir: str) -> None:
     check_io_consistency(test_dir)
     check_dbm_consistency(test_dir)
 
 
-def mount_check(ipaddr: str, share_name: str) -> None:
-    mount_params = testhelper.get_mount_parameters(test_info_dict, share_name)
-    mount_params["host"] = ipaddr
-    tmp_root = testhelper.get_tmp_root()
-    mount_point = testhelper.get_tmp_mount_point(tmp_root)
+def _mount_and_check(
+    mount_params: typing.Dict[str, str],
+    tmp_root: str,
+    mount_point: str,
+    test_dir: str,
+) -> None:
     flag_mounted = False
     try:
         testhelper.cifs_mount(mount_params, mount_point)
@@ -39,6 +56,16 @@ def mount_check(ipaddr: str, share_name: str) -> None:
             testhelper.cifs_umount(mount_point)
         os.rmdir(mount_point)
         os.rmdir(tmp_root)
+
+
+def mount_check(ipaddr: str, share_name: str) -> None:
+    mount_params = testhelper.get_mount_parameters(test_info_dict, share_name)
+    mount_params["host"] = ipaddr
+    (tmp_root, mount_point, test_dir, do_mnt) = _get_test_dirs(mount_params)
+    if do_mnt:
+        _mount_and_check(mount_params, tmp_root, mount_point, test_dir)
+    else:
+        _check_mounted_smbshare(test_dir)
 
 
 def generate_mount_check(
